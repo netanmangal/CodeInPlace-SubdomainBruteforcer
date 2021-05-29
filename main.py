@@ -3,6 +3,7 @@ import sys
 import dns.resolver
 
 SUBDOMAINS_FILENAME = "subdomains.txt"
+OUTPUT_FILENAME = "output.txt"
 
 C_RESET = "\033[0m"
 C_RED = "\033[1;31m"
@@ -35,6 +36,9 @@ def resolve_subdomain(subdomain):
         resolver.nameserver = [NAMESERVER]
         answers = resolver.resolve(subdomain, rdtype=dns.rdatatype.A)
         print(f"{C_GREEN}[+] {subdomain} {C_RESET}")
+        with open(OUTPUT_FILENAME, "a") as f:
+            f.write(subdomain + "\n")
+
     except (dns.resolver.NXDOMAIN, dns.name.EmptyLabel, dns.resolver.NoAnswer):
         print(f"{C_RED}[-] {subdomain} {C_RESET}")
 
@@ -46,6 +50,11 @@ def main():
     if (not domain):
         print(f"{C_RED}[-] Parent domain not specified.\nUse -d flag. {C_RESET}")
         sys.exit(1)
+
+    # clear output file if exsists
+    f = open(OUTPUT_FILENAME, "w")
+    f.truncate(0)
+    f.close()
 
     perform_brute_force(domain)
 
